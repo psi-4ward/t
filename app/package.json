@@ -39,6 +39,9 @@
       "target": [
         "tar.gz",
         "dmg"
+      ],
+      "publish": [
+        "github"
       ]
     },
     "linux": {
@@ -46,12 +49,18 @@
       "target": [
         "tar.gz",
         "AppImage"
+      ],
+      "publish": [
+        "github"
       ]
     },
     "win": {
       "target": [
         "portable",
         "zip"
+      ],
+      "publish": [
+        "github"
       ]
     }
   },
