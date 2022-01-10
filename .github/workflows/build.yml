@@ -4,7 +4,7 @@ on: push
 
 jobs:
   release:
-    name: Build and Release
+    name: Build and Release Apps
     runs-on: ${{ matrix.os }}
 
     strategy:
