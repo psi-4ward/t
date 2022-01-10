@@ -22,9 +22,9 @@ jobs:
 
       - name: Build AskSinAnalyzerXS
         run: |
-          (cd ui && npm ci && npm run build)
-          (cd app && npm ci && npm run tsc)
-          (cd app && node scripts/make-node-pkg.js)
+          cd ui && npm ci && npm run build && cd ..
+          cd app && npm ci && npm run tsc && cd ..
+          cd app && node scripts/make-node-pkg.js && cd ..
 
       - name: Build and Release Electron Apps
         uses: samuelmeuli/action-electron-builder@v1
