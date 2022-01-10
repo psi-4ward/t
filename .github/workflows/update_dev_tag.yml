@@ -11,8 +11,11 @@ jobs:
       runs-on: ubuntu-latest
       steps:
         - name: Check out Git repository
-          uses: actions/checkout@v1
+          uses: actions/checkout@v2
         - name: Update tag
           run: |
+            export OWNER=$(echo $GITHUB_REPOSITORY | cut -d/ -f1)
             git tag -f v0.0.0
-            git push -f https://$GH_TOKEN@github.com/$GITHUB_REPOSITORY.git v0.0.0
+            git config --global user.name 'Github Action'
+            git config --global user.email $OWNER@users.noreply.github.com
+            git push -f v0.0.0
