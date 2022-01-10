@@ -1,0 +1,19 @@
+name: Update v0.0.0
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  update_tag:
+      name: Update dev tag
+      runs-on: ubuntu-latest
+      steps:
+        - name: Check out Git repository
+          uses: actions/checkout@v1
+        - name: Update tag
+          run: |
+            git pull --tags
+            git tag -f v0.0.0
+            git push -f https://$GH_TOKEN@github.com/$GITHUB_REPOSITORY.git v0.0.0
