@@ -4,6 +4,7 @@ on: push
 
 jobs:
   release:
+    name: Build and Release
     runs-on: ${{ matrix.os }}
 
     strategy:
@@ -25,8 +26,9 @@ jobs:
           (cd app && npm ci && npm run tsc)
           (cd app && node scripts/make-node-pkg.js)
 
-      - name: Build/release Electron Apps
+      - name: Build and Release Electron Apps
         uses: samuelmeuli/action-electron-builder@v1
         with:
+          package_root: app
           github_token: ${{ secrets.github_token }}
           release: ${{ startsWith(github.ref, 'refs/tags/v') }}
