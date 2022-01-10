@@ -19,8 +19,6 @@
     "productName": "AskSinAnalyerXS",
     "appId": "com.AskSinAnalyzerXS",
     "artifactName": "${name}-${version}-${os}.${ext}",
-    "publish": "always",
-    "releaseType": "draft",
     "directories": {
       "output": "../builds"
     },
@@ -40,9 +38,6 @@
       "target": [
         "tar.gz",
         "dmg"
-      ],
-      "publish": [
-        "github"
       ]
     },
     "linux": {
@@ -50,18 +45,12 @@
       "target": [
         "tar.gz",
         "AppImage"
-      ],
-      "publish": [
-        "github"
       ]
     },
     "win": {
       "target": [
         "portable",
         "zip"
-      ],
-      "publish": [
-        "github"
       ]
     }
   },

@@ -1,0 +1,81 @@
+name: Build and Publish
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+
+jobs:
+  create_release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          prerelease: true
+
+  build:
+    name: Build
+    needs: [ create_release ]
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ macos-latest, ubuntu-latest, windows-latest ]
+
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v1
+
+      - name: Install Node.js and NPM
+        uses: actions/setup-node@v2
+        with:
+          node-version: 14
+
+      - name: Update version in package.json
+        run: cd app && npm version ${GITHUB_REF_NAME:1}
+
+      - name: Build AskSinAnalyzerXS UI
+        run: cd ui && npm ci && npm run build && cd ..
+
+      - name: Build AskSinAnalyzerXS
+        run: cd app && npm ci && npm run tsc && cd ..
+
+      - name: Create dist bundle
+        run: cd app && node scripts/make-node-pkg.js && cd ..
+
+      - name: Build Electron App
+        uses: samuelmeuli/action-electron-builder@v1
+        with:
+          package_root: app
+          github_token: ${{ secrets.github_token }}
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          fail_on_unmatched_files: false
+          files: |
+            builds/asksin-analyzer-xs-*-node.tar.gz
+            builds/asksin-analyzer-xs-*-win.exe
+            builds/asksin-analyzer-xs-*-mac.tar.gz
+            builds/asksin-analyzer-xs-*-linux.tar.gz
+
+  publish_release:
+    name: Publish Release
+    runs-on: ubuntu-latest
+    needs: [ build ]
+    steps:
+      - name: Create Changelog
+        id: github_release
+        uses: mikepenz/release-changelog-builder-action@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          commitMode: true
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          prerelease: false
+          body: ${{ steps.github_release.outputs.changelog }}
