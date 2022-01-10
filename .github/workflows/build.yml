@@ -20,9 +20,10 @@ jobs:
           node-version: 14
 
       - name: Build AskSinAnalyzerXS
-        run: (cd ui && npm ci && npm run build)
-        run: (cd app && npm ci && npm run tsc)
-        run: (cd app && node scripts/make-node-pkg.js)
+        run: |
+          (cd ui && npm ci && npm run build)
+          (cd app && npm ci && npm run tsc)
+          (cd app && node scripts/make-node-pkg.js)
 
       - name: Build/release Electron Apps
         uses: samuelmeuli/action-electron-builder@v1
