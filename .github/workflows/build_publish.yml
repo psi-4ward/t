@@ -32,10 +32,11 @@ jobs:
         id: derive_tag_name
         run: |
           if [ $GITHUB_REF_NAME == "master" ]; then
-            echo ::set-output name=tag_name::v0.0.0
+            echo "::set-output name=tag_name::v0.0.0"
           else 
-            echo ::set-output name=tag_name::$GITHUB_REF_NAME
+            echo "::set-output name=tag_name::$GITHUB_REF_NAME"
           fi
+          echo "::set-output name=test::asd"
       - run: echo ${{ steps.derive_tag_name.outputs.tag_name }}
       - name: Release
         if: ${{ github.ref_name != 'master' }}
@@ -53,7 +54,7 @@ jobs:
         os: [ macos-latest, ubuntu-latest, windows-latest ]
 
     steps:
-      - run: echo ${{ toJson(needs) }}
+      - run: echo "${{ toJson(needs.create_release.outputs) }}"
 
       - name: Check out Git repository
         uses: actions/checkout@v2
