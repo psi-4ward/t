@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Derive correct Tag
-        if: ${{ github.ref_name != 'master' }}
+        if: ${{ github.ref_name == 'master' }}
         run: echo "::set-env name=GITHUB_REF_NAME::v0.0.0"
       - name: Tag
         id: tag_name
