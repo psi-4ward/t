@@ -15,6 +15,7 @@ jobs:
     name: Create Release
     runs-on: ubuntu-latest
     steps:
+      - run: echo $GITHUB_REF_NAME
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
