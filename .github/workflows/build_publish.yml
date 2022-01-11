@@ -15,10 +15,17 @@ jobs:
     name: Create Release
     runs-on: ubuntu-latest
     steps:
-      - run: echo $GITHUB_REF_NAME
+      - name: Derive correct Tag
+        if: github.ref_name != master
+        run: echo "::set-env name=GITHUB_REF_NAME::v0.0.0"
+      - name: Tag
+        id: tag_name
+        run: echo $GITHUB_REF_NAME
       - name: Release
+        if: github.ref_name != master
         uses: softprops/action-gh-release@v1
         with:
+          tag_name: ${{ steps.tag_name.outputs.stdout }}
           prerelease: true
 
   build:
@@ -41,7 +48,7 @@ jobs:
       - name: Update version in package.json
         run: |
           cd app 
-          npm version $GITHUB_REF_NAME
+          npm version ${{ steps.tag_name.outputs.stdout }}
 
       - name: Build AskSinAnalyzerXS UI
         run: |
@@ -70,6 +77,7 @@ jobs:
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
+          tag_name: ${{ steps.tag_name.outputs.stdout }}
           fail_on_unmatched_files: false
           files: |
             builds/asksin-analyzer-xs-*-node.tar.gz
@@ -83,6 +91,7 @@ jobs:
     needs: [ build ]
     steps:
       - name: Create Changelog
+        if: github.ref_name != master
         id: github_release
         uses: mikepenz/release-changelog-builder-action@v1
         env:
@@ -91,6 +100,7 @@ jobs:
           commitMode: true
 
       - name: Release
+        if: github.ref_name != master
         uses: softprops/action-gh-release@v1
         with:
           prerelease: false
