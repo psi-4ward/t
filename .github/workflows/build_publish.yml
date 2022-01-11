@@ -34,8 +34,9 @@ jobs:
           if [ $GITHUB_REF_NAME == "master" ]; then
             echo ::set-output name=tag_name::v0.0.0
           else 
-            echo ::set-output name=tag_name:: $GITHUB_REF_NAME
+            echo ::set-output name=tag_name::$GITHUB_REF_NAME
           fi
+      - run: echo ${{ steps.tag_name.outputs.tag_name }}
       - name: Release
         if: ${{ github.ref_name != 'master' }}
         uses: softprops/action-gh-release@v1
@@ -52,6 +53,8 @@ jobs:
         os: [ macos-latest, ubuntu-latest, windows-latest ]
 
     steps:
+      - run: echo ${{ needs.create_release.outputs.tag_name }}
+
       - name: Check out Git repository
         uses: actions/checkout@v2
 
