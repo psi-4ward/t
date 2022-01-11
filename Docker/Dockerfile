@@ -1,6 +1,6 @@
 # docker build -t asksinanalyzer -f Docker/Dockerfile .
 # docker run --rm --name analyzer -p 8081:8081 -v $PWD/data:/data --device=/dev/ttyUSB0 psitrax/asksinanalyzer
-FROM node:12-alpine
+FROM node:14-alpine
 MAINTAINER Christoph Wiechert <wio@psitrax.de>
 
 ARG DOCKER_TAG=${DOCKER_TAG}
