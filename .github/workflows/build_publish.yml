@@ -29,19 +29,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Derive correct Tag
-        id: tag_name
+        id: derive_tag_name
         run: |
           if [ $GITHUB_REF_NAME == "master" ]; then
             echo ::set-output name=tag_name::v0.0.0
           else 
             echo ::set-output name=tag_name::$GITHUB_REF_NAME
           fi
-      - run: echo ${{ steps.tag_name.outputs.tag_name }}
+      - run: echo ${{ steps.derive_tag_name.outputs.tag_name }}
       - name: Release
         if: ${{ github.ref_name != 'master' }}
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ steps.tag_name.outputs.tag_name }}
+          tag_name: ${{ steps.derive_tag_name.outputs.tag_name }}
           prerelease: true
 
   build:
