@@ -39,7 +39,7 @@ jobs:
       - name: Update version in package.json
         run: |
           cd app 
-          npm version 0.0.0
+          npm version 0.0.0 --allow-same-version
 
       - name: Build AskSinAnalyzerXS UI
         run: |

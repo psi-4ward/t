@@ -35,7 +35,7 @@ jobs:
       - name: Update version in package.json
         run: |
           cd app 
-          npm version v0.0.0 --allow-same-version
+          npm version $GITHUB_REF_NAME
 
       - name: Build AskSinAnalyzerXS UI
         run: |
