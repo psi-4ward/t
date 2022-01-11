@@ -1,6 +1,6 @@
 # docker build -t asksinanalyzer -f Docker/Dockerfile .
 # docker run --rm --name analyzer -p 8081:8081 -v $PWD/data:/data --device=/dev/ttyUSB0 psitrax/asksinanalyzer
-FROM node:14-alpine
+FROM node:16-alpine
 MAINTAINER Christoph Wiechert <wio@psitrax.de>
 
 ARG DOCKER_TAG=${DOCKER_TAG}
@@ -9,10 +9,10 @@ COPY /app /tmp/src/app
 COPY /ui /tmp/src/ui
 COPY /README.md /tmp/src/
 
-RUN set -x && mkdir /data && \
+RUN set -x && set -e && mkdir /data && \
     chown node /data && \
     apk add --no-cache udev && \
-    apk add --no-cache --virtual build-deps python make g++ linux-headers && \
+    apk add --no-cache --virtual build-deps python3 make g++ linux-headers && \
     if [ -n "$DOCKER_TAG" ] ; then cd /tmp/src/app && npm version --allow-same-version $DOCKER_TAG ; fi && \
     cd /tmp/src/app && npm ci && npm run tsc && \
     cd /tmp/src/ui && npm ci && npm run build && \
