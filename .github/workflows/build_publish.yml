@@ -28,14 +28,19 @@ jobs:
     name: Create Release
     runs-on: ubuntu-latest
     steps:
-      - name: Tag
+      - name: Derive correct Tag
         id: tag_name
-        run: '[ $GITHUB_REF_NAME == "master" ] && echo v0.0.0 || echo $GITHUB_REF_NAME'
+        run: |
+          if [ $GITHUB_REF_NAME == "master" ]; then
+            echo ::set-output name=tag_name::v0.0.0
+          else 
+            echo ::set-output name=tag_name:: $GITHUB_REF_NAME
+          fi
       - name: Release
         if: ${{ github.ref_name != 'master' }}
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ steps.tag_name.outputs.stdout }}
+          tag_name: ${{ steps.tag_name.outputs.tag_name }}
           prerelease: true
 
   build:
@@ -58,7 +63,7 @@ jobs:
       - name: Update version in package.json
         run: |
           cd app 
-          npm version ${{ steps.tag_name.outputs.stdout }}
+          npm version ${{ needs.create_release.outputs.tag_name }}
 
       - name: Build AskSinAnalyzerXS UI
         run: |
@@ -87,7 +92,7 @@ jobs:
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ steps.tag_name.outputs.stdout }}
+          tag_name: ${{ needs.create_release.outputs.tag_name }}
           fail_on_unmatched_files: false
           files: |
             builds/asksin-analyzer-xs-*-node.tar.gz
