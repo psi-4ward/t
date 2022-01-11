@@ -30,7 +30,7 @@ jobs:
     steps:
       - name: Tag
         id: tag_name
-        run: '[ $GITHUB_REF_NAME == "master"] && echo v0.0.0 || echo $GITHUB_REF_NAME'
+        run: '[ $GITHUB_REF_NAME == "master" ] && echo v0.0.0 || echo $GITHUB_REF_NAME'
       - name: Release
         if: ${{ github.ref_name != 'master' }}
         uses: softprops/action-gh-release@v1
