@@ -86,7 +86,7 @@ jobs:
           node scripts/make-node-pkg.js
 
       - name: Publish NPM bundle
-        if: runner.os == 'Linux' and needs.prepare_release.outputs.tag != 'v0.0.0'
+        if: runner.os == 'Linux' && needs.prepare_release.outputs.tag != 'v0.0.0'
         run: |
           cd builds/asksin-analyzer-xs-*-node
           npm set //registry.npmjs.org/:_authToken $NPM_API_TOKEN
