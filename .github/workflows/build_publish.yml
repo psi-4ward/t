@@ -4,23 +4,33 @@ on:
   push:
     tags:
       - 'v*.*.*'
-  workflow_run:
-    workflows: [ "Update v0.0.0" ]
-    types:
-      - completed
+    branches:
+      - master
 
 
 jobs:
+  update_tag:
+    name: Update dev tag
+    runs-on: ubuntu-latest
+    if: ${{ github.ref_name == 'master' }}
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v2
+      - name: Update tag
+        run: |
+          export OWNER=$(echo $GITHUB_REPOSITORY | cut -d/ -f1)
+          git config --global user.name 'Github Action'
+          git config --global user.email $OWNER@users.noreply.github.com
+          git tag -f v0.0.0
+          git push -f origin v0.0.0
+
   create_release:
     name: Create Release
     runs-on: ubuntu-latest
     steps:
-      - name: Derive correct Tag
-        if: ${{ github.ref_name == 'master' }}
-        run: echo "::set-env name=GITHUB_REF_NAME::v0.0.0"
       - name: Tag
         id: tag_name
-        run: echo $GITHUB_REF_NAME
+        run: '[ $GITHUB_REF_NAME == "master"] && echo v0.0.0 || echo $GITHUB_REF_NAME'
       - name: Release
         if: ${{ github.ref_name != 'master' }}
         uses: softprops/action-gh-release@v1
@@ -38,7 +48,7 @@ jobs:
 
     steps:
       - name: Check out Git repository
-        uses: actions/checkout@v1
+        uses: actions/checkout@v2
 
       - name: Install Node.js and NPM
         uses: actions/setup-node@v2
