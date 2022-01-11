@@ -53,7 +53,7 @@ jobs:
           npm ci 
           npm run tsc
 
-      - name: Create dist bundle
+      - name: Create npm package
         if: runner.os == 'Linux'
         run: |
           cd app 

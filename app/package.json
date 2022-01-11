@@ -19,6 +19,7 @@
     "productName": "AskSinAnalyerXS",
     "appId": "com.AskSinAnalyzerXS",
     "artifactName": "${name}-${version}-${os}.${ext}",
+    "publish": "never",
     "directories": {
       "output": "../builds"
     },
