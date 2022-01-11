@@ -71,12 +71,12 @@ jobs:
             builds/asksin-analyzer-xs-*-mac.tar.gz
             builds/asksin-analyzer-xs-*-linux.tar.gz
 
-      - name: Publish NPM Package
-        if: runner.os == 'Linux'
-        run: |
-          cd builds/asksin-analyzer-xs-*-node
-          npm set //registry.npmjs.org/:_authToken $NPM_API_TOKEN
-          npm publish
+#      - name: Publish NPM Package
+#        if: runner.os == 'Linux'
+#        run: |
+#          cd builds/asksin-analyzer-xs-*-node
+#          npm set //registry.npmjs.org/:_authToken $NPM_API_TOKEN
+#          npm publish
 
   publish_release:
     name: Publish Github Release
