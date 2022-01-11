@@ -1,48 +1,18 @@
-name: Build and Publish
+name: Release
 
 on:
   push:
     tags:
       - 'v*.*.*'
-    branches:
-      - master
-
 
 jobs:
-  update_tag:
-    name: Update dev tag
-    runs-on: ubuntu-latest
-    if: ${{ github.ref_name == 'master' }}
-    steps:
-      - name: Check out Git repository
-        uses: actions/checkout@v2
-      - name: Update tag
-        run: |
-          export OWNER=$(echo $GITHUB_REPOSITORY | cut -d/ -f1)
-          git config --global user.name 'Github Action'
-          git config --global user.email $OWNER@users.noreply.github.com
-          git tag -f v0.0.0
-          git push -f origin v0.0.0
-
   create_release:
     name: Create Release
     runs-on: ubuntu-latest
     steps:
-      - name: Derive correct Tag
-        id: derive_tag_name
-        run: |
-          if [ $GITHUB_REF_NAME == "master" ]; then
-            echo "::set-output name=tag_name::v0.0.0"
-          else 
-            echo "::set-output name=tag_name::$GITHUB_REF_NAME"
-          fi
-          echo "::set-output name=test::asd"
-      - run: echo ${{ steps.derive_tag_name.outputs.tag_name }}
       - name: Release
-        if: ${{ github.ref_name != 'master' }}
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ steps.derive_tag_name.outputs.tag_name }}
           prerelease: true
 
   build:
@@ -54,8 +24,6 @@ jobs:
         os: [ macos-latest, ubuntu-latest, windows-latest ]
 
     steps:
-      - run: echo "${{ toJson(needs.create_release.outputs) }}"
-
       - name: Check out Git repository
         uses: actions/checkout@v2
 
@@ -96,7 +64,6 @@ jobs:
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ needs.create_release.outputs.tag_name }}
           fail_on_unmatched_files: false
           files: |
             builds/asksin-analyzer-xs-*-node.tar.gz
@@ -110,7 +77,6 @@ jobs:
     needs: [ build ]
     steps:
       - name: Create Changelog
-        if: ${{ github.ref_name != 'master' }}
         id: github_release
         uses: mikepenz/release-changelog-builder-action@v1
         env:
@@ -119,7 +85,6 @@ jobs:
           commitMode: true
 
       - name: Release
-        if: ${{ github.ref_name != 'master' }}
         uses: softprops/action-gh-release@v1
         with:
           prerelease: false
