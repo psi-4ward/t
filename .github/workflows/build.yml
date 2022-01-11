@@ -18,6 +18,8 @@ jobs:
             echo "::set-output name=tag_name::$GITHUB_REF_NAME"
           fi
       - run: echo '::set-output name=SELECTED_COLOR::green'
+    outputs:
+      tag_name: ${{ steps.derive_tag_name.outputs.tag_name }}
 
   build:
     name: Build
