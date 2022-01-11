@@ -16,13 +16,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Derive correct Tag
-        if: github.ref_name != 'master'
+        if: ${{ github.ref_name != "master" }}
         run: echo "::set-env name=GITHUB_REF_NAME::v0.0.0"
       - name: Tag
         id: tag_name
         run: echo $GITHUB_REF_NAME
       - name: Release
-        if: github.ref_name != 'master'
+        if: ${{ github.ref_name != "master" }}
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ steps.tag_name.outputs.stdout }}
@@ -91,7 +91,7 @@ jobs:
     needs: [ build ]
     steps:
       - name: Create Changelog
-        if: github.ref_name != 'master'
+        if: ${{ github.ref_name != "master" }}
         id: github_release
         uses: mikepenz/release-changelog-builder-action@v1
         env:
@@ -100,7 +100,7 @@ jobs:
           commitMode: true
 
       - name: Release
-        if: github.ref_name != 'master'
+        if: ${{ github.ref_name != "master" }}
         uses: softprops/action-gh-release@v1
         with:
           prerelease: false
