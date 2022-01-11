@@ -1,0 +1,131 @@
+name: Build and Publish
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+    branches:
+      - master
+
+
+jobs:
+  update_dev_tag:
+    name: Update dev tag
+    runs-on: ubuntu-latest
+    if: ${{ github.ref_name == 'master' }}
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v2
+      - name: Update tag
+        run: |
+          export OWNER=$(echo $GITHUB_REPOSITORY | cut -d/ -f1)
+          git config --global user.name 'Github Action'
+          git config --global user.email $OWNER@users.noreply.github.com
+          git tag -f v0.0.0
+          git push -f origin v0.0.0
+
+  prepare_release:
+    name: Prepare Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Derive correct Tag
+        id: derive_tag_name
+        run: |
+          if [ $GITHUB_REF_NAME == "master" ]; then
+            echo "::set-output name=tag_name::v0.0.0"
+          else 
+            echo "::set-output name=tag_name::$GITHUB_REF_NAME"
+          fi
+      - name: Release
+        if: ${{ github.ref_name != 'master' }}
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ steps.derive_tag_name.outputs.tag_name }}
+          prerelease: true
+    outputs:
+      tag: ${{ steps.derive_tag_name.outputs.tag_name }}
+
+  build:
+    name: Build
+    needs: [ prepare_release ]
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ macos-latest, ubuntu-latest, windows-latest ]
+
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v2
+
+      - name: Install Node.js and NPM
+        uses: actions/setup-node@v2
+        with:
+          node-version: 14
+
+      - name: Update version in package.json
+        run: |
+          cd app 
+          npm version ${{ needs.prepare_release.outputs.tag }} --allow-same-version
+
+      - name: Build AskSinAnalyzerXS UI
+        run: |
+          cd ui 
+          npm ci 
+          npm run build
+
+      - name: Build AskSinAnalyzerXS
+        run: |
+          cd app 
+          npm ci 
+          npm run tsc
+
+      - name: Create NPM bundle
+        if: runner.os == 'Linux'
+        run: |
+          cd app 
+          node scripts/make-node-pkg.js
+
+      - name: Publish NPM bundle
+        if: runner.os == 'Linux' and needs.prepare_release.outputs.tag != 'v0.0.0'
+        run: |
+          cd builds/asksin-analyzer-xs-*-node
+          npm set //registry.npmjs.org/:_authToken $NPM_API_TOKEN
+          npm publish
+
+      - name: Build Electron App
+        uses: samuelmeuli/action-electron-builder@v1
+        with:
+          package_root: app
+          github_token: ${{ secrets.github_token }}
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ needs.prepare_release.outputs.tag }}
+          fail_on_unmatched_files: false
+          files: |
+            builds/asksin-analyzer-xs-*-node.tar.gz
+            builds/asksin-analyzer-xs-*-win.exe
+            builds/asksin-analyzer-xs-*-mac.tar.gz
+            builds/asksin-analyzer-xs-*-linux.tar.gz
+
+  publish_release:
+    name: Publish Release
+    runs-on: ubuntu-latest
+    needs: [ build ]
+    steps:
+      - name: Create Changelog
+        if: ${{ github.ref_name != 'master' }}
+        id: github_release
+        uses: mikepenz/release-changelog-builder-action@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          commitMode: true
+
+      - name: Release
+        if: ${{ github.ref_name != 'master' }}
+        uses: softprops/action-gh-release@v1
+        with:
+          prerelease: false
+          body: ${{ needs.prepare_release.outputs.tag }}
