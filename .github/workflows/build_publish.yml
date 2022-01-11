@@ -4,6 +4,10 @@ on:
   push:
     tags:
       - 'v*.*.*'
+  workflow_run:
+    workflows: [ "Update v0.0.0" ]
+    types:
+      - completed
 
 
 jobs:
@@ -34,16 +38,27 @@ jobs:
           node-version: 14
 
       - name: Update version in package.json
-        run: cd app && npm version ${GITHUB_REF_NAME:1}
+        run: |
+          cd app 
+          npm version $GITHUB_REF_NAME
 
       - name: Build AskSinAnalyzerXS UI
-        run: cd ui && npm ci && npm run build && cd ..
+        run: |
+          cd ui 
+          npm ci 
+          npm run build
 
       - name: Build AskSinAnalyzerXS
-        run: cd app && npm ci && npm run tsc && cd ..
+        run: |
+          cd app 
+          npm ci 
+          npm run tsc
 
       - name: Create dist bundle
-        run: cd app && node scripts/make-node-pkg.js && cd ..
+        if: runner.os == 'Linux'
+        run: |
+          cd app 
+          node scripts/make-node-pkg.js
 
       - name: Build Electron App
         uses: samuelmeuli/action-electron-builder@v1
