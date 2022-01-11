@@ -46,7 +46,7 @@ jobs:
       tag: ${{ steps.derive_tag_name.outputs.tag_name }}
 
   build:
-    name: Build
+    name: App build
     needs: [ prepare_release ]
     runs-on: ${{ matrix.os }}
     strategy:
@@ -112,6 +112,7 @@ jobs:
             builds/asksin-analyzer-xs-*-linux.tar.gz
 
   build_docker:
+    name: Docker build
     runs-on: ubuntu-latest
     steps:
       - name: Derive docker tag

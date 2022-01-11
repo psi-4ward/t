@@ -9,9 +9,7 @@ COPY /app /tmp/src/app
 COPY /ui /tmp/src/ui
 COPY /README.md /tmp/src/
 
-RUN ls -l /tmp/src/app
-
-RUN mkdir /data && \
+RUN set -x && mkdir /data && \
     chown node /data && \
     apk add --no-cache udev && \
     apk add --no-cache --virtual build-deps python make g++ linux-headers && \
